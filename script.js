@@ -8,9 +8,10 @@ function addItem(event){
     text.value = "";
 }
 
-function getItems(){
+
+function getItems(status){
     db.collection("todo-items").onSnapshot((snapshot)  => {
-        console.log(snapshot);
+
         let items = [];
         snapshot.docs.forEach((doc)=>{
             items.push({
@@ -18,36 +19,39 @@ function getItems(){
                 ...doc.data()
             })
         })
-        generateItems(items);
+
+        generateItems(items, status);
     })
 }
 
-// const filterBtns = document.querySelectorAll('.active');
 
-// //filter items
-// filterBtns.forEach(function(span){
-//     span.addEventListener('click',function (e) {
-//         console.log(e.currentTarget.dataset);
-//     });
-// });
-
-function generateItems(items){
+function generateItems(items, status){
     
+    let count = 0
     let itemsHTML = "";
+    // console.log(status);
     items.forEach((item) => {
-        itemsHTML += `
-            <div class="todo-item">
-                <div class="check">
-                    <div data-id="${item.id }" class="check-mark ${item.status == "completed" ? "checked": ""}">
-                        <img src="./assets/icon-check.svg">
+        if((status == "completed" && item.status == "completed") || (status == "active" && item.status == "active") || status == "All"){
+            itemsHTML += `
+                <div class="todo-item">
+                    <div class="check">
+                        <div data-id="${item.id }" class="check-mark ${item.status == "completed" ? "checked": ""}">
+                            <img src="./assets/icon-check.svg">
+                        </div>
+                    </div>
+                    <div class="todo-text ${item.status == "completed" ? "checked": ""}">
+                        ${item.text}
                     </div>
                 </div>
-                <div class="todo-text ${item.status == "completed" ? "checked": ""}">
-                    ${item.text}
-                </div>
-            </div>
-        `
+            `
+        }
+        if(item.status == "active"){
+            count += 1
+        }
     })
+
+
+    document.querySelector(".items-left").innerText = `${count} items left`
     document.querySelector(".todo-items").innerHTML = itemsHTML;
     createEventListeners();
 }
@@ -82,4 +86,33 @@ function markCompleted(id){
     })
 }
 
-getItems();
+function showActive()
+{
+    getItems("active");
+    document.getElementById("showAll-button").className = "inactive"
+    document.getElementById("showActive-button").className = "active"
+    document.getElementById("showCompleted-button").className = "inactive"
+}
+
+function showCompleted()
+{
+    getItems("completed");
+    document.getElementById("showAll-button").className = "inactive"
+    document.getElementById("showActive-button").className = "inactive"
+    document.getElementById("showCompleted-button").className = "active"
+}
+
+function showAll(){
+    getItems("All");
+    document.getElementById("showAll-button").className = "active"
+    document.getElementById("showActive-button").className = "inactive"
+    document.getElementById("showCompleted-button").className = "inactive"
+}
+
+function clearCompleted()
+{
+    
+}
+
+getItems("All");
+
