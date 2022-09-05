@@ -111,7 +111,15 @@ function showAll(){
 
 function clearCompleted()
 {
-    
+    db.collection("todo-items").get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            
+            if(doc.data().status == "completed"){
+                let item = db.collection("todo-items").doc(doc.id);
+                item.delete();
+            }
+        });
+    });
 }
 
 getItems("All");
